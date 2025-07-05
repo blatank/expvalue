@@ -11,6 +11,10 @@ async def scrape_race_info(race_id: str):
         await page.goto(url, timeout=60000)
         await page.wait_for_selector("tr.HorseList", timeout=30000)
 
+        # html_content = await page.content()
+        # with open(f"{race_id}.html", "w", encoding="utf-8") as f:
+        #   f.write(html_content)
+
         rows = await page.query_selector_all("tr.HorseList")
 
         horses = []
@@ -39,6 +43,9 @@ async def scrape_race_info(race_id: str):
 
         await browser.close()
 
+        horses.pop()
+        horses.pop()
+
         # DataFrame に変換
         df = pd.DataFrame(horses)
         df["勝率"] = [f"=1/{len(df)}*100" for i in range(len(df))]
@@ -55,5 +62,5 @@ async def scrape_race_info(race_id: str):
         print(f"✅ Excelファイル出力完了: {output_file}")
 
 # 実行（例: race_id を指定）
-race_id = "202510020211"  # ← 任意のレースIDに変更可能
+race_id = "202510020411"  # ← 任意のレースIDに変更可能
 asyncio.run(scrape_race_info(race_id))
