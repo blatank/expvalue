@@ -37,6 +37,9 @@ async def scrape_race_info(race_id: str):
 
         await browser.close()
 
+        horses.pop()
+        horses.pop()
+
         # 出力ファイル名
         output_file = f"期待値計算_{race_id}.xlsx"
 
@@ -64,5 +67,5 @@ async def scrape_race_info(race_id: str):
             print(f"✅ 新規作成: {output_file}")
 
 # 使用例
-race_id = "202503020611"
+race_id = "202507030207"
 asyncio.run(scrape_race_info(race_id))
