@@ -63,9 +63,18 @@ async def scrape_race_info(race_id: str):
             df["勝率"] = [f"=1/{len(df)}*100" for i in range(len(df))]
             df["期待値"] = [f"=C{i+2}*D{i+2}" for i in range(len(df))]
             df["期待値順位"] = [f"=RANK(E{i+2},E$2:E${len(df)+1},0)" for i in range(len(df))]
+            total_row = {
+              "馬番": "",
+              "馬名": "勝率合計",
+              "単勝オッズ": "",
+              "勝率": f"=SUM(D2:D{len(df)+1})",
+              "期待値": "",
+              "期待値順位": ""
+            }
+            df.loc[len(df)] = total_row  # 合計行を追加
             df.to_excel(output_file, index=False)
             print(f"✅ 新規作成: {output_file}")
 
 # 使用例
-race_id = "202507030207"
+race_id = "202501010411"
 asyncio.run(scrape_race_info(race_id))
