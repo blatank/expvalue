@@ -26,6 +26,8 @@ async def scrape_race_info(race_id: str):
 
                 odds_span = await row.query_selector("td.Popular span")
                 odds = (await odds_span.inner_text()).strip() if odds_span else ""
+                if odds:
+                    odds = float(odds)
 
                 horses.append({
                     "馬番": uma_num,
@@ -52,7 +54,7 @@ async def scrape_race_info(race_id: str):
                 horse_name = ws[f"B{row}"].value
                 for h in horses:
                     if h["馬名"] == horse_name:
-                        ws[f"C{row}"] = h["単勝オッズ"]  # 単勝オッズのみ上書き
+                        ws[f"C{row}"] = float(h["単勝オッズ"])  # 単勝オッズのみ上書き
 
             wb.save(output_file)
             print(f"✅ オッズだけ更新（式は維持）: {output_file}")
@@ -63,18 +65,21 @@ async def scrape_race_info(race_id: str):
             df["勝率"] = [f"=1/{len(df)}*100" for i in range(len(df))]
             df["期待値"] = [f"=C{i+2}*D{i+2}" for i in range(len(df))]
             df["期待値順位"] = [f"=RANK(E{i+2},E$2:E${len(df)+1},0)" for i in range(len(df))]
+            df["人気"] = [f"=RANK(C{i+2},C$2:C${len(df)+1},1)" for i in range(len(df))]
+
             total_row = {
               "馬番": "",
               "馬名": "勝率合計",
               "単勝オッズ": "",
               "勝率": f"=SUM(D2:D{len(df)+1})",
               "期待値": "",
-              "期待値順位": ""
+              "期待値順位": "",
+              "人気": f"=HYPERLINK(\"{url}\")"
             }
             df.loc[len(df)] = total_row  # 合計行を追加
             df.to_excel(output_file, index=False)
             print(f"✅ 新規作成: {output_file}")
 
 # 使用例
-race_id = "202501010411"
+race_id = "202509040411"
 asyncio.run(scrape_race_info(race_id))
